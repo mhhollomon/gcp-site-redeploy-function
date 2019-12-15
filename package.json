@@ -1,0 +1,24 @@
+{
+  "name": "redeploy",
+  "version": "1.0.0",
+  "description": "function to deploy on netlify",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx @google-cloud/functions-framework --target=redeploy --signature-type=event",
+    "watch": "npm-watch start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+    "watch": {
+        "start": "*.js"
+    },
+  "author": "github/mhhollomon",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/functions-framework": "^1.3.2",
+    "@sendgrid/mail": "^6.4.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "npm-watch": "^0.6.0"
+  }
+}
