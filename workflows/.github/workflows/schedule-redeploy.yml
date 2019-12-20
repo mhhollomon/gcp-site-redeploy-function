@@ -1,9 +1,13 @@
 name: schedule redeploy
 
 on:
-  push:
-    branches: 
-      - master
+    repository_dispatch :
+        branches: 
+            - master
+
+    push:
+        branches: 
+            - master
 
 env :
     BUCKET_URI: "gs://<your bucket name>"

@@ -1,15 +1,38 @@
-const request   = require('request');
+const req_prom  = require('request-promise-native');
 const SendGrid  = require('@sendgrid/mail');
 const {Storage} = require('@google-cloud/storage');
 const config    = require('./redeploy.json');
 
-function force_deploy() {
-    return new Promise((resolve, reject) => { resolve(1); });
+function request_github_deploy() {
+    var options = {
+        method : 'POST',
+        uri    : config.WEBHOOK_URL,
+        json   : true,
+        headers : {
+            Accept: 'application/vnd.github.everest-preview+json',
+            Authorization: "token " + process.env.GITHUB_AUTH_KEY,
+            "User-Agent": "request"
+        },
+        body   : {
+            event_type: "request_redeploy"
+        }
+    };
+    return new req_prom(options);
+}
+
+function request_netlify_deploy() {
+    var options = {
+        method : 'POST',
+        uri    : config.WEBHOOK_URL,
+        json   : true,
+        body   : {}
+    };
+
+    return new req_prom(options);
 }
 
 function send_email(status) {
     const date_string = new Date().toLocaleString();
-    SendGrid.setApiKey(process.env.EMAIL_API_KEY);
     const msg = {
         "to"   : config.TO_ADDRESS,
         "from" : config.FROM_ADDRESS,
@@ -17,15 +40,19 @@ function send_email(status) {
         "text" : `Finished at ${date_string}. Other information will be in the function logs.`
     };
 
+    SendGrid.setApiKey(process.env.EMAIL_API_KEY);
     SendGrid.send(msg)
         .then(() => {
             console.log(`Mail sent to ${config.TO_ADDRESS}.`);
         })
         .catch( (error) => {
-            console.log(`Sending mail error: ${error}`)
+            console.log(`Sending mail failed: ${error}`)
         });
 }
 
+//
+// Reads the file from the bucket and returns the date
+//
 function get_redeploy_date() {
     const storage = new Storage();
     const bucket = storage.bucket(config.BUCKET_NAME);
@@ -57,18 +84,6 @@ function get_redeploy_date() {
 exports.redeploy = async (data, context) => {
     var webhook_status = 'Unkown';
 
-    /*
-	request.post(config.WEBHOOK_URL, function (error, response, body) {
-        if (error || ( response && response.statusCode != 200)) {
-            webhook_status = 'Failure';
-            console.log('error:', error);
-            console.log('statusCode:', response && response.statusCode);
-            console.log('body:', body);
-        }
-    });
-    */
-
-
     const redeploy_date = await get_redeploy_date();
 
     console.log(`Read data in main = '${redeploy_date}'`);
@@ -78,12 +93,14 @@ exports.redeploy = async (data, context) => {
         // wrong timezone, but close enough for me
         var today_string =  new Date().toISOString().substring(0, 10);
         if (today_string >= redeploy_date) {
-            redeploy().then( () => {
-                webhook_status = "Success";
-            })
-            .catch( (error) => {
-                webhook_status = 'ERROR';
-            });
+            await request_github_deploy()
+                .then( () => {
+                    webhook_status = "Success";
+                })
+                .catch( (error) => {
+                    console.log(`Webhook ERROR: ${error}`);
+                    webhook_status = 'ERROR';
+                });
         } else {
             webhook_status = 'Nothing to do';
         }
@@ -93,7 +110,6 @@ exports.redeploy = async (data, context) => {
 
     console.log(`webhook finished - ${webhook_status}`);
 
-    send_email(webhook_status);
-
+    await send_email(webhook_status);
 
 };

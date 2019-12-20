@@ -7,7 +7,7 @@ if [ "$1" = "function" ]; then
     gcloud functions deploy redeploy --runtime nodejs10 \
         --trigger-topic ${TOPIC} \
         --project ${PROJECT_ID} \
-        --set-env-vars EMAIL_API_KEY=${EMAIL_API_KEY}
+        --set-env-vars EMAIL_API_KEY=${EMAIL_API_KEY},GITHUB_AUTH_KEY=${GITHUB_AUTH_KEY}
 fi
 
 if [ "$1" = "trigger" ]; then
