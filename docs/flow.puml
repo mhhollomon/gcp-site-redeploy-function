@@ -21,5 +21,6 @@ bucket -> function : return timestamp
 function -> github : request redeploy
 github -> firebase : deploy
 github -> bucket : update
+function -> user : email status
 
 @enduml

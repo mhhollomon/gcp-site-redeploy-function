@@ -10,18 +10,18 @@ future.
 ![Flow Diagram](/docs/flow.png)
 
 1. User pushes content to master branch
-2. Github action fires doing two things:
+2. Github action fires and does two things:
     1. Build the site and deploy.
     2. Update a timestamp in a Google Cloud Storage bucket
 
 _time passes_
 
-1. A GCP Scheduler job publish to topic
+1. A GCP Scheduler job publishes to a topic
 2. A Cloud Function activates on that topic and
     1. Reads the timestamp from the bucket
-    2. If the current date is AFTER the timestamp
+    2. If the current date is _after_ the timestamp
         - call back into github to start the actions
-    3. Send email about what it did.
+    3. Send email about what it did (or did not do).
 
 ## Installing
 
