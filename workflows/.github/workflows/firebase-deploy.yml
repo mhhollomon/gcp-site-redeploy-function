@@ -1,0 +1,31 @@
+name: build deploy firebase
+
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  build:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@master
+        
+      - name: setup hugo
+        uses: peaceiris/actions-hugo@master
+        with:
+          hugo-version: '0.61.0'
+          extended: true
+
+      - name: build
+        run: hugo --minify
+
+      - name: deploy-to-firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

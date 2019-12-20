@@ -1,0 +1,41 @@
+name: schedule redeploy
+
+on:
+  push:
+    branches: 
+      - master
+
+env :
+    BUCKET_URI: "gs://<your bucket name>"
+jobs:
+  schedule-redeploy:
+    name: Schedule Redeploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@master
+
+      - name: setup hugo
+        uses: peaceiris/actions-hugo@master
+        with:
+          hugo-version: '0.61.0'
+          extended: true
+
+      - name : generate_file
+        run  : |
+          hugo list future | cut -d',' -f2 | cut -dT -f1 | sort | head -1 > next_deploy_date.txt
+          echo "Deploy date will be"
+          cat next_deploy_date.txt
+          echo "END"
+
+      - name : setup-gcloud
+        uses : GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with :
+          version : '274.0.0'
+          service_account_email: ${{secrets.GCP_GITHUB_FID}}
+          service_account_key: ${{secrets.GCP_GITHUB_KEY}}
+
+      - name : upload_file
+        run  : |
+          gsutil cp next_deploy_date.txt $BUCKET_URI
