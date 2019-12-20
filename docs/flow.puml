@@ -1,26 +1,28 @@
 @startuml
 
 actor user
-participant github
-collections firebase
-database bucket as "Google Cloud Storage"
-participant function
-control job as "Scheduler Job"
+participant GitHub
+collections Firebase
+box "Google Cloud Platform"
+    database bucket as "Cloud Storage"
+    participant function as "Cloud Function"
+    control job as "Scheduler Job"
+end box
 
 
 
-user -> github : push content
-github -> firebase : deploy
-github -> bucket : update
+user -> GitHub : push content
+GitHub -> Firebase : deploy
+GitHub -> bucket : update
 
 == Time passes ==
 
 job -> function : publish
 function -> bucket : get timestamp
 bucket -> function : return timestamp
-function -> github : request redeploy
-github -> firebase : deploy
-github -> bucket : update
+function -> GitHub : request redeploy
+GitHub -> Firebase : deploy
+GitHub -> bucket : update
 function -> user : email status
 
 @enduml
