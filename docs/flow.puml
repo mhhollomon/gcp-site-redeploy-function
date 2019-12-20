@@ -1,0 +1,25 @@
+@startuml
+
+actor user
+participant github
+collections firebase
+database bucket as "Google Cloud Storage"
+participant function
+control job as "Scheduler Job"
+
+
+
+user -> github : push content
+github -> firebase : deploy
+github -> bucket : update
+
+== Time passes ==
+
+job -> function : publish
+function -> bucket : get timestamp
+bucket -> function : return timestamp
+function -> github : request redeploy
+github -> firebase : deploy
+github -> bucket : update
+
+@enduml

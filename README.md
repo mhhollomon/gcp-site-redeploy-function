@@ -7,6 +7,8 @@ future.
 
 ## Rough flow
 
+![Flow Diagram](/docs/flow.png)
+
 1. User pushes content to master branch
 2. Github action fires doing two things:
     1. Build the site and deploy.
