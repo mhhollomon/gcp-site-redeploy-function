@@ -1,6 +1,8 @@
 {
 
-"WEBHOOK_URL" : "<URL to post to activate the webhook>"
-"FROM_ADDRESS" : "<Email address to message will seem to be from>"
-"TO_ADDRESS" : "<Email address to send the mail to>"
+"WEBHOOK_URL"  : "<URL to post to activate the webhook>",
+"FROM_ADDRESS" : "<Email address to message will seem to be from>",
+"TO_ADDRESS"   : "<Email address to send the mail to>",
+"BUCKET_NAME"  : "<Cloud Storage bucket name to read from>",
+"DS_FILE_NAME" : "<Path and file name to read>"
 }

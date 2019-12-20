@@ -8,13 +8,14 @@
     "watch": "npm-watch start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-    "watch": {
-        "start": "*.js"
-    },
+  "watch": {
+    "start": "*.js"
+  },
   "author": "github/mhhollomon",
   "license": "ISC",
   "dependencies": {
     "@google-cloud/functions-framework": "^1.3.2",
+    "@google-cloud/storage": "^4.1.3",
     "@sendgrid/mail": "^6.4.0",
     "request": "^2.88.0"
   },
