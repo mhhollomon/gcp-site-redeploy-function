@@ -10,6 +10,12 @@
 #
 BUCKET_NAME="<Your bucket name>"
 #
+# The Service Account associated with the Cloud Function.
+# You can retrieve this with command:
+#   gcloud functions describe redeploy --project ${PROJECT_ID} | grep serviceAccountEmail
+#
+FUNCTION_SA=$(gcloud functions describe redeploy --project ${PROJECT_ID} | grep serviceAccountEmail | cut -d' ' -f2)
+#
 # The (short) name for the service account
 #
 SA_NAME=github-action
@@ -18,12 +24,6 @@ SA_NAME=github-action
 #
 SA_FULL=${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
 
-#
-# The Service Account associated with the Cloud Function.
-# You can retrieve this with command:
-#   gcloud functions describe redeploy --project ${PROJECT_ID} | grep serviceAccountEmail
-#
-FUNCTION_SA=code-vamping@appspot.gserviceaccount.com
 
 #
 # Create the bucket
@@ -65,11 +65,11 @@ gsutil iam ch serviceAccount:${FUNCTION_SA}:roles/storage.objectAdmin \
 #
 # Add the full name of the service account as a secret to github as GCP_GITHUB_FID
 #
-echo "Add this as the value as a secret named GCP_GITHUB_FID"
+echo "Add this as the value to a GitHub secret named GCP_GITHUB_FID"
 echo ${SA_FULL}
 
 #
 # add the key as a secret to github as GCP_GITUB_KEY
 #
-echo "Add this as the value as a secret name GCP_GITHUB_KEY"
+echo "Add this as the value to a GitHub secret named GCP_GITHUB_KEY"
 cat ~/${SA_NAME}_key.json | base64

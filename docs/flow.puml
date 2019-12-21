@@ -2,6 +2,7 @@
 
 actor user
 participant GitHub
+participant SendGrid
 collections Firebase
 box "Google Cloud Platform"
     database bucket as "Cloud Storage"
@@ -23,6 +24,7 @@ bucket -> function : return timestamp
 function -> GitHub : request redeploy
 GitHub -> Firebase : deploy
 GitHub -> bucket : update
-function -> user : email status
+function -> SendGrid : sendmail api
+SendGrid -> user : email
 
 @enduml
