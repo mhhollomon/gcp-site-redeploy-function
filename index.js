@@ -32,6 +32,14 @@ function request_netlify_deploy() {
 }
 
 function send_email(status) {
+    const api_key = process.env.EMAIL_API_KEY;
+
+    if (api_key.toUpperCase() == '-NONE-') {
+        return new Promise(function(resolve, reject) {
+            resolve(1);
+        });
+    }
+
     const date_string = new Date().toLocaleString();
     const msg = {
         "to"   : config.TO_ADDRESS,
@@ -41,7 +49,7 @@ function send_email(status) {
     };
 
     SendGrid.setApiKey(process.env.EMAIL_API_KEY);
-    SendGrid.send(msg)
+    return SendGrid.send(msg)
         .then(() => {
             console.log(`Mail sent to ${config.TO_ADDRESS}.`);
         })
