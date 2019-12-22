@@ -1,3 +1,15 @@
+#
+# Node cache
+#
 node_modules
-sendgrid.env
+#
+# vim temp files
+#
+*.swp
+
+#
+# don't accidently commit file with
+# possibly sensitive info
+#
 redeploy.json
+*.env

@@ -123,11 +123,12 @@ already have one.
 
 ### Step 4. Set Environment Variables for the Install Scripts
 
-Set the following environment variables in your current shell
+Set the following environment variables in your current shell. If you are not
+using the email integration the `EMAIL_API_KEY` does not need to be set.
 
 ```bash
 export GITHUB_AUTH_KEY="<key from step 2>"
-export EMAIL_API_KEY="<key from step 3 or -NONE->" 
+export EMAIL_API_KEY="<key from step 3 >" 
 export PROJECT_ID="<name of your GCP Project>"
 ```
 
@@ -135,10 +136,17 @@ export PROJECT_ID="<name of your GCP Project>"
 
 Edit `redeploy.json.example` and copy to `redeploy.json`
 
+DEPLOYER
+: What system will do the deploys. For Firebase the deploy will actually be
+done in GitHub. Values are NONE, GITHUB, NETLIFY.
+
 WEBHOOK_URL
 : The URL used to activate the redeploy. For a Firebase deploy, this will
 actually be a pointer into GitHub and will have the form
   `https://api.github.com/repos/${user}/${repo}/dispatches`.
+
+EMAIL_PROVIDER
+: What Email Provider to use. Values are: NONE, SENDGRID.
 
 FROM_ADDRESS
 : If using the email integration, this is the address for the "from" line in
