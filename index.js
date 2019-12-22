@@ -1,45 +1,64 @@
 const req_prom  = require('request-promise-native');
-const SendGrid  = require('@sendgrid/mail');
 const {Storage} = require('@google-cloud/storage');
 const config    = require('./redeploy.json');
 
-function request_github_deploy() {
-    var options = {
-        method : 'POST',
-        uri    : config.WEBHOOK_URL,
-        json   : true,
-        headers : {
-            Accept: 'application/vnd.github.everest-preview+json',
-            Authorization: "token " + process.env.GITHUB_AUTH_KEY,
-            "User-Agent": "request"
-        },
-        body   : {
-            event_type: "request_redeploy"
-        }
-    };
-    return new req_prom(options);
+var deployer;
+
+//
+// Happy_promise
+//
+// Return a Promise that trivally resolves to a true value and prints the 
+// passed in log message to the log.
+//
+function happy_promise(log_msg) {
+    return new Promise((resolve, reject) => {
+        console.log(log_msg);
+        resolve(1);
+    });
 }
 
-function request_netlify_deploy() {
-    var options = {
-        method : 'POST',
-        uri    : config.WEBHOOK_URL,
-        json   : true,
-        body   : {}
-    };
-
-    return new req_prom(options);
+//
+// Broken_promise
+//
+// Return a Promise that trivially rejects to a false value and prints
+// the given log_msg to the log.
+//
+function broken_promise(log_msg) {
+    return new Promise((resolve, reject) => {
+        console.log(log_msg);
+        reject(0);
+    });
 }
 
-function send_email(status) {
-    const api_key = process.env.EMAIL_API_KEY;
-
-    if (api_key.toUpperCase() == '-NONE-') {
-        return new Promise(function(resolve, reject) {
-            resolve(1);
-        });
+//
+// request_deploy
+//
+// Wrapper to find the correct deploy module
+// and return a Promise to the deploy request
+//
+function request_deploy() {
+    if (! deployer) {
+        switch (config.DEPLOYER.toUpperCase()) {
+            case 'NONE' :
+                return happy_promise("Null Deployer configured");
+            case 'GITHUB' :
+                deployer = require('./github_deploy.js');
+                break;
+            case 'NETLIFY' :
+                deployer = require('./netlify_deploy.js');
+                break;
+            default :
+                return broken_promise(
+                    `ERROR: invalid DEPLOYER '${config.DEPLOYER}'`);
+        };
     }
 
+    return deployer.request_deploy(config);
+}
+
+function use_sendgrid(status) {
+    const SendGrid  = require('@sendgrid/mail');
+    const api_key = process.env.EMAIL_API_KEY;
     const date_string = new Date().toLocaleString();
     const msg = {
         "to"   : config.TO_ADDRESS,
@@ -59,6 +78,30 @@ function send_email(status) {
 }
 
 //
+// send_email
+//
+// Wrapper to choose the correct function based on the 
+// the provider referenced in config.EMAIL_PROVIDER. The
+// currently supported providers are:
+// SENDGRID : SendGrid.com
+// NONE : No email is sent.
+//
+// Always returns a Promise. The Promise will fail if the
+// provider is unknown.
+//
+function send_email(status) {
+
+    switch (config.EMAIL_PROVIDER.toUpperCase()) {
+        case 'NONE' :
+            return happy_promise("Null Email Provider");
+        case 'SENDGRID' :
+            return use_sendgrid(status);
+        default :
+            return broken_promise(`Unknown email provider ${config.EMAIL_PROVIDER}`);
+    }
+}
+
+//
 // Reads the file from the bucket and returns the date
 //
 function get_redeploy_date() {
@@ -73,14 +116,12 @@ function get_redeploy_date() {
                 console.log(`Got an error: ${err}`);
                 reject(err);
             })
-            .on('response', function(response) {
-                // Server connected and responded with the specified status and headers.
-            })
             .on('data', function(file_data) {
                 redeploy_date += file_data;
             })
             .on('end', function() {
-                console.log("Got the end");
+                // Assume a nl character on the end.
+                // Probably should test for it.
                 redeploy_date = redeploy_date.slice(0,-1);
                 console.log("redeploy_date now == " + redeploy_date);
                 resolve(redeploy_date);
@@ -96,12 +137,11 @@ exports.redeploy = async (data, context) => {
 
     console.log(`Read data in main = '${redeploy_date}'`);
 
-
     if (redeploy_date != '') {
         // wrong timezone, but close enough for me
         var today_string =  new Date().toISOString().substring(0, 10);
         if (today_string >= redeploy_date) {
-            await request_github_deploy()
+            await request_deploy()
                 .then( () => {
                     webhook_status = "Success";
                 })
