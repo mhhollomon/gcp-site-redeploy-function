@@ -13,7 +13,23 @@
 .git
 .gitignore
 
+#
+# Subdirectory with the workflows
+#
+.github
+
+#
+# Node cache
+#
 node_modules
-sendgrid.env
-send-msg.sh
+
+#
+# Misc stuff that doesn't need to deployed
+#
+*.env
 redeploy.json.example
+
+#
+# Testing info
+# 
+*.sh
