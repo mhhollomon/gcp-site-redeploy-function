@@ -1,8 +1,7 @@
 const req_prom  = require('request-promise-native');
+const deployer  = require('deployer')
 const {Storage} = require('@google-cloud/storage');
 const config    = require('./redeploy.json');
-
-var deployer;
 
 //
 // Happy_promise
@@ -37,23 +36,7 @@ function broken_promise(log_msg) {
 // and return a Promise to the deploy request
 //
 function request_deploy() {
-    if (! deployer) {
-        switch (config.DEPLOYER.toUpperCase()) {
-            case 'NONE' :
-                return happy_promise("Null Deployer configured");
-            case 'GITHUB' :
-                deployer = require('./github_deploy.js');
-                break;
-            case 'NETLIFY' :
-                deployer = require('./netlify_deploy.js');
-                break;
-            default :
-                return broken_promise(
-                    `ERROR: invalid DEPLOYER '${config.DEPLOYER}'`);
-        };
-    }
-
-    return deployer.request_deploy(config);
+    return new deployer(config.DEPLOYER).request_deploy(config);
 }
 
 function use_sendgrid(status) {

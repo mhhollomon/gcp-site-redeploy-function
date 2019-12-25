@@ -1,6 +1,7 @@
 const req_prom  = require('request-promise-native');
 
 exports.request_deploy = (config) => {
+    console.log("GitHub Deployer called");
     var options = {
         method : 'POST',
         uri    : config.WEBHOOK_URL,

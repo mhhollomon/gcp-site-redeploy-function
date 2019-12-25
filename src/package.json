@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "watch": {
-    "start": "*.js"
+    "start":  [ "*.js",  "*.json" ]
   },
   "author": "github/mhhollomon",
   "license": "ISC",
@@ -18,7 +18,9 @@
     "@google-cloud/storage": "^4.1.3",
     "@sendgrid/mail": "^6.4.0",
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.8"
+    "request-promise-native": "^1.0.8",
+    "github_deploy" : "file:lib/github_deploy",
+    "netlify_deploy" : "file:lib/netlify_deploy"
   },
   "devDependencies": {
     "npm-watch": "^0.6.0"
