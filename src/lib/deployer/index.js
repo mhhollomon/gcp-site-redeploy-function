@@ -1,19 +1,17 @@
+const deployer_map = {
+    "NONE"    : './null.js',
+    "GITHUB"  : "./github.js",
+    "NETLIFY" : "./netlify.js"
+};
 
 module.exports = class Deployer {
     constructor(target) {
 
-        switch (target.toUpperCase()) {
-            case 'NONE' :
-                this.target = require('./null_deployer.js');
-                break;
-            case 'GITHUB' :
-                this.target = require('./github.js');
-                break;
-            case 'NETLIFY' :
-                this.target = require('./netlify.js');
-                break;
-            default :
-                throw `Invalid deploy target '${target}'`;
+        deployer_key = target.toUpperCase();
+        if (deployer_map[deployer_key]) {
+            this.target = require(deployer_map[deployer_key]);
+        } else {
+            throw `Invalid deploy target '${target}'`;
         }
     }
 
