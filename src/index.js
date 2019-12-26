@@ -32,9 +32,6 @@ function broken_promise(log_msg) {
 //
 // request_deploy
 //
-// Wrapper to find the correct deploy module
-// and return a Promise to the deploy request
-//
 function request_deploy() {
     return new deployer(config.DEPLOYER).request_deploy(config);
 }
@@ -144,3 +141,8 @@ exports.redeploy = async (data, context) => {
     await send_email(webhook_status);
 
 };
+
+//
+// Used only to test the deployment scripts
+//
+exports.redeploy_test = (data, context) => {};

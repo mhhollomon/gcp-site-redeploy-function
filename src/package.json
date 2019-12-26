@@ -19,8 +19,7 @@
     "@sendgrid/mail": "^6.4.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
-    "github_deploy" : "file:lib/github_deploy",
-    "netlify_deploy" : "file:lib/netlify_deploy"
+    "deployer" : "file:lib/deployer"
   },
   "devDependencies": {
     "npm-watch": "^0.6.0"
