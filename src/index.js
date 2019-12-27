@@ -4,32 +4,6 @@ const {Storage} = require('@google-cloud/storage');
 const config    = require('./redeploy.json');
 
 //
-// Happy_promise
-//
-// Return a Promise that trivally resolves to a true value and prints the 
-// passed in log message to the log.
-//
-function happy_promise(log_msg) {
-    return new Promise((resolve, reject) => {
-        console.log(log_msg);
-        resolve(1);
-    });
-}
-
-//
-// Broken_promise
-//
-// Return a Promise that trivially rejects to a false value and prints
-// the given log_msg to the log.
-//
-function broken_promise(log_msg) {
-    return new Promise((resolve, reject) => {
-        console.log(log_msg);
-        reject(0);
-    });
-}
-
-//
 // request_deploy
 //
 function request_deploy() {
@@ -51,6 +25,7 @@ function use_sendgrid(status) {
     return SendGrid.send(msg)
         .then(() => {
             console.log(`Mail sent to ${config.TO_ADDRESS}.`);
+            return Promise.resolve(1);
         })
         .catch( (error) => {
             console.log(`Sending mail failed: ${error}`)
@@ -73,11 +48,11 @@ function send_email(status) {
 
     switch (config.EMAIL_PROVIDER.toUpperCase()) {
         case 'NONE' :
-            return happy_promise("Null Email Provider");
+            return Promise.resolve("Null Email Provider");
         case 'SENDGRID' :
             return use_sendgrid(status);
         default :
-            return broken_promise(`Unknown email provider ${config.EMAIL_PROVIDER}`);
+            return Promise.reject(`Unknown email provider ${config.EMAIL_PROVIDER}`);
     }
 }
 
@@ -138,7 +113,7 @@ exports.redeploy = async (data, context) => {
 
     console.log(`webhook finished - ${webhook_status}`);
 
-    await send_email(webhook_status);
+    await send_email(webhook_status).then(console.log).catch(console.log);
 
 };
 

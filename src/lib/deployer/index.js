@@ -7,7 +7,7 @@ const deployer_map = {
 module.exports = class Deployer {
     constructor(target) {
 
-        deployer_key = target.toUpperCase();
+        const deployer_key = target.toUpperCase();
         if (deployer_map[deployer_key]) {
             this.target = require(deployer_map[deployer_key]);
         } else {
