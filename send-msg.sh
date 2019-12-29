@@ -1,4 +1,4 @@
-#!/usr/bin/bash -xv
+#!/usr/bin/env bash
 
 
 MSG=$(cat <<_EOM_
