@@ -1,76 +1,31 @@
 const req_prom  = require('request-promise-native');
+const deployer  = require('deployer')
 const {Storage} = require('@google-cloud/storage');
 const config    = require('./redeploy.json');
-
-var deployer;
-
-//
-// Happy_promise
-//
-// Return a Promise that trivally resolves to a true value and prints the 
-// passed in log message to the log.
-//
-function happy_promise(log_msg) {
-    return new Promise((resolve, reject) => {
-        console.log(log_msg);
-        resolve(1);
-    });
-}
-
-//
-// Broken_promise
-//
-// Return a Promise that trivially rejects to a false value and prints
-// the given log_msg to the log.
-//
-function broken_promise(log_msg) {
-    return new Promise((resolve, reject) => {
-        console.log(log_msg);
-        reject(0);
-    });
-}
+const {SecretManager} = require('gcp_secret_manager');
 
 //
 // request_deploy
 //
-// Wrapper to find the correct deploy module
-// and return a Promise to the deploy request
-//
-function request_deploy() {
-    if (! deployer) {
-        switch (config.DEPLOYER.toUpperCase()) {
-            case 'NONE' :
-                return happy_promise("Null Deployer configured");
-            case 'GITHUB' :
-                deployer = require('./github_deploy.js');
-                break;
-            case 'NETLIFY' :
-                deployer = require('./netlify_deploy.js');
-                break;
-            default :
-                return broken_promise(
-                    `ERROR: invalid DEPLOYER '${config.DEPLOYER}'`);
-        };
-    }
-
-    return deployer.request_deploy(config);
+function request_deploy(deployer_config) {
+    return new deployer(deployer_config).request_deploy();
 }
 
-function use_sendgrid(status) {
+function use_sendgrid(econfig, status) {
     const SendGrid  = require('@sendgrid/mail');
-    const api_key = process.env.EMAIL_API_KEY;
+    const api_key = econfig.AUTH_KEY;
     const date_string = new Date().toLocaleString();
     const msg = {
-        "to"   : config.TO_ADDRESS,
-        "from" : config.FROM_ADDRESS,
+        "to"   : econfig.TO_ADDRESS,
+        "from" : econfig.FROM_ADDRESS,
         "subject" : `Redeploy status - ${status}`,
         "text" : `Finished at ${date_string}. Other information will be in the function logs.`
     };
 
-    SendGrid.setApiKey(process.env.EMAIL_API_KEY);
+    SendGrid.setApiKey(api_key);
     return SendGrid.send(msg)
         .then(() => {
-            console.log(`Mail sent to ${config.TO_ADDRESS}.`);
+            return Promise.resolve(`Mail sent to ${econfig.TO_ADDRESS}.`);
         })
         .catch( (error) => {
             console.log(`Sending mail failed: ${error}`)
@@ -89,15 +44,15 @@ function use_sendgrid(status) {
 // Always returns a Promise. The Promise will fail if the
 // provider is unknown.
 //
-function send_email(status) {
+function send_email(econfig, status) {
 
-    switch (config.EMAIL_PROVIDER.toUpperCase()) {
+    switch (econfig.PROVIDER.toUpperCase()) {
         case 'NONE' :
-            return happy_promise("Null Email Provider");
+            return Promise.resolve("Null Email Provider");
         case 'SENDGRID' :
-            return use_sendgrid(status);
+            return use_sendgrid(econfig, status);
         default :
-            return broken_promise(`Unknown email provider ${config.EMAIL_PROVIDER}`);
+            return Promise.reject(`Unknown email provider ${econfig.PROVIDER}`);
     }
 }
 
@@ -122,7 +77,7 @@ function get_redeploy_date() {
             .on('end', function() {
                 // Assume a nl character on the end.
                 // Probably should test for it.
-                redeploy_date = redeploy_date.slice(0,-1);
+                redeploy_date = redeploy_date.slice(0,10);
                 console.log("redeploy_date now == " + redeploy_date);
                 resolve(redeploy_date);
             })
@@ -134,6 +89,14 @@ exports.redeploy = async (data, context) => {
     var webhook_status = 'Unkown';
 
     const redeploy_date = await get_redeploy_date();
+    const secret_manager = new SecretManager(config.PROJECT_ID);
+
+    const deployer_config = config.DEPLOYER;
+
+    if ("SECRET_NAME" in deployer_config) {
+        deployer_config.AUTH_KEY = await secret_manager.get_secret_data(deployer_config.SECRET_NAME);
+        console.log(`secret "${deployer_config.SECRET_NAME}" = ${deployer_config.AUTH_KEY.slice(-5)}`);
+    }
 
     console.log(`Read data in main = '${redeploy_date}'`);
 
@@ -141,7 +104,7 @@ exports.redeploy = async (data, context) => {
         // wrong timezone, but close enough for me
         var today_string =  new Date().toISOString().substring(0, 10);
         if (today_string >= redeploy_date) {
-            await request_deploy()
+            await request_deploy(deployer_config)
                 .then( () => {
                     webhook_status = "Success";
                 })
@@ -157,7 +120,18 @@ exports.redeploy = async (data, context) => {
     }
 
     console.log(`webhook finished - ${webhook_status}`);
+    email_config = config.EMAIL;
 
-    await send_email(webhook_status);
+    if ("SECRET_NAME" in email_config) {
+        email_config.AUTH_KEY = await secret_manager.get_secret_data(email_config.SECRET_NAME);
+        console.log(`secret "${email_config.SECRET_NAME}" = ${email_config.AUTH_KEY.slice(-5)}`);
+    }
+
+    await send_email(email_config, webhook_status).then(console.log).catch(console.log);
 
 };
+
+//
+// Used only to test the deployment scripts
+//
+exports.redeploy_test = async (data, context) => { await exports.redeploy(data, context); };

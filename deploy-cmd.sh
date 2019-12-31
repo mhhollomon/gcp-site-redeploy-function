@@ -1,17 +1,23 @@
-#!/usr/bin/bash -x
+#!/usr/bin/env -S bash -x
 
 TOPIC="redeploy-trigger"
 
+func_name=redeploy
+
+if  [ "$1" = "test" ]; then
+    shift
+    func_name="redeploy_test"
+    TOPIC="redeploy-test-trgger"
+fi
+
 if [ "$1" = "function" ]; then
     shift
-    VARIABLES="GITHUB_AUTH_KEY=${GITHUB_AUTH_KEY}"
-    if [ "${EMAIL_API_KEY:-xxNONExx}" != "xxNONExx" ]; then
-        VARIABLES+=",EMAIL_API_KEY=${EMAIL_API_KEY}"
-    fi
-    gcloud functions deploy redeploy --runtime nodejs10 \
+
+    gcloud functions deploy ${func_name} \
+        --source src \
+        --runtime nodejs10 \
         --trigger-topic ${TOPIC} \
-        --project ${PROJECT_ID} \
-        --set-env-vars ${VARIABLES}
+        --project ${PROJECT_ID}
 fi
 
 if [ "$1" = "trigger" ]; then
