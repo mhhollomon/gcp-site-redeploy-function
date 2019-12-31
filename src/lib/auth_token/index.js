@@ -1,23 +1,19 @@
 const req_prom  = require('request-promise-native');
-const Mutex = require('async-mutex');
+const {Mutex}   = require('async-mutex');
 
 const token_req_uri = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token";
 
 const cache_mutex = new Mutex();
-var token_cache;
-var token_expiry;
+let token_cache;
+let token_expiry;
 
-//
-// This is broken. If we ask for the token again before
-// the first promise resolves, we will ask again and then
-// overwrite. Need to add a mutex of some kind.
-//
 exports.get_token = async () => {
-    var release = await cache_mutex.aquire();
+    let release = await cache_mutex.acquire();
 
     try {
         if (token_cache) {
             if (Math.floor(Date.now()/1000) < token_expiry) {
+                console.log("reusing auth token");
                 return Promise.resolve(token_cache);
             } else {
                 token_cache = undefined;
@@ -34,8 +30,8 @@ exports.get_token = async () => {
             },
             json: true
         })
-        .then((data) => { 
-            var release = await cache_mutex().aquire();
+        .then(async (data) => { 
+            let release = await cache_mutex.acquire();
 
             // be conservative. assume it expires a second before the API
             // says it will.

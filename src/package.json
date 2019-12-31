@@ -9,7 +9,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "watch": {
-    "start":  [ "*.js",  "*.json" ]
+    "start": [
+      "*.js",
+      "*.json"
+    ]
   },
   "author": "github/mhhollomon",
   "license": "MIT",
@@ -19,8 +22,9 @@
     "@sendgrid/mail": "^6.4.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
-    "deployer" : "file:lib/deployer",
-    "auth_token" : "file:lib/auth_token"
+    "deployer": "file:lib/deployer",
+    "auth_token": "file:lib/auth_token",
+    "gcp_secret_manager": "file:lib/gcp_secret_manager"
   },
   "devDependencies": {
     "npm-watch": "^0.6.0"

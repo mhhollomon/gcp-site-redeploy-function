@@ -7,22 +7,17 @@ func_name=redeploy
 if  [ "$1" = "test" ]; then
     shift
     func_name="redeploy_test"
+    TOPIC="redeploy-test-trgger"
 fi
 
 if [ "$1" = "function" ]; then
     shift
-    VARIABLES="GITHUB_AUTH_KEY=${GITHUB_AUTH_KEY}"
-    if [ "${EMAIL_API_KEY:-xxNONExx}" != "xxNONExx" ]; then
-        VARIABLES+=",EMAIL_API_KEY=${EMAIL_API_KEY}"
-    fi
-    (
-        cd src
-        gcloud functions deploy ${func_name} --runtime nodejs10 \
-            --allow-unauthenticated \
-            --trigger-topic ${TOPIC} \
-            --project ${PROJECT_ID} \
-            --set-env-vars ${VARIABLES}
-    )
+
+    gcloud functions deploy ${func_name} \
+        --source src
+        --runtime nodejs10 \
+        --trigger-topic ${TOPIC} \
+        --project ${PROJECT_ID}
 fi
 
 if [ "$1" = "trigger" ]; then
