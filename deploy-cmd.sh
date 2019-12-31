@@ -14,7 +14,7 @@ if [ "$1" = "function" ]; then
     shift
 
     gcloud functions deploy ${func_name} \
-        --source src
+        --source src \
         --runtime nodejs10 \
         --trigger-topic ${TOPIC} \
         --project ${PROJECT_ID}

@@ -123,6 +123,7 @@ already have one.
 
 ### Step 4. Set Environment Variables for the Install Scripts
 
+**These now need to be in secrets. Updated instructions to follow**
 Set the following environment variables in your current shell. If you are not
 using the email integration the `EMAIL_API_KEY` does not need to be set.
 
@@ -136,7 +137,20 @@ export PROJECT_ID="<name of your GCP Project>"
 
 Edit `redeploy.json.example` and copy to `redeploy.json`
 
-DEPLOYER
+PROJECT_ID
+: The Google Cloud Platform Project Name or ID to deploy to.
+
+BUCKET_NAME
+: The name of the Cloud Storage bucket into which the timestamp file is
+written.
+
+DS_FILE_NAME
+: The path and name of the timestamp file to write.
+
+
+#### Deployer block
+
+NAME
 : What system will do the deploys. For Firebase the deploy will actually be
 done in GitHub. Values are NONE, GITHUB, NETLIFY.
 
@@ -145,7 +159,12 @@ WEBHOOK_URL
 actually be a pointer into GitHub and will have the form
   `https://api.github.com/repos/${user}/${repo}/dispatches`.
 
-EMAIL_PROVIDER
+SECRET_NAME
+: The Name of the secret that will be consulted for the auth key for the
+deployer.
+
+#### Email Block
+PROVIDER
 : What Email Provider to use. Values are: NONE, SENDGRID.
 
 FROM_ADDRESS
@@ -156,12 +175,6 @@ TO_ADDESS
 : If using the email integration, this is the addess to which to send the
 status email. This can be an array of address.
 
-BUCKET_NAME
-: The name of the Cloud Storage bucket into which the timestamp file is
-written.
-
-DS_FILE_NAME
-: The path and name of the timestamp file to write.
 
 ### Step 6. Create GCP objects
 
