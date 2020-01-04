@@ -1,5 +1,5 @@
-const req_prom  = require('request-promise-native');
-const {Mutex}   = require('async-mutex');
+import * as req_prom from 'request-promise-native';
+import {Mutex} from 'async-mutex';
 
 const token_req_uri = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token";
 
@@ -7,7 +7,7 @@ const cache_mutex = new Mutex();
 let token_cache;
 let token_expiry;
 
-exports.get_token = async () => {
+export async function get_token() {
     let release = await cache_mutex.acquire();
 
     try {

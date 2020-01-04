@@ -1,8 +1,8 @@
-const req_prom  = require('request-promise-native');
-const tok       = require('auth_token');
+import * as req_prom from 'request-promise-native';
+import {get_token} from './auth_token';
 
 
-exports.SecretManager = class SecretManager {
+export class SecretManager {
     constructor(project_id) {
         this.project_id_ = project_id;
     }
