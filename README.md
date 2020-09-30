@@ -73,6 +73,8 @@ these services (like it does for Firebase).
 
 Note: The Firebase Project and GCP Project can be the same project.
 
+1. Create Project
+
 #### SendGrid Account
 
 If you want to use the email facility, you will need a

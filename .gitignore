@@ -2,6 +2,7 @@
 # Node cache
 #
 node_modules
+package-lock.json
 #
 # vim temp files
 #

@@ -10,7 +10,8 @@ on:
             - master
 
 env :
-    BUCKET_URI: "gs://<your bucket name>"
+    BUCKET_URI: "%{BUCKET_URI}%"
+    DS_FILE_NAME: "%{DS_FILE_NAME}%"
 jobs:
   schedule-redeploy:
     name: Schedule Redeploy
@@ -28,18 +29,18 @@ jobs:
 
       - name : generate_file
         run  : |
-          hugo list future head -1 > next_deploy_date.txt
+          hugo list future head -1 > $DS_FILE_NAME
           echo "schedule file contains:"
-          cat next_deploy_date.txt
+          cat $DS_FILE_NAME
           echo "END"
 
       - name : setup-gcloud
         uses : GoogleCloudPlatform/github-actions/setup-gcloud@master
         with :
-          version : '274.0.0'
+          version : '276.0.0'
           service_account_email: ${{secrets.GCP_GITHUB_FID}}
           service_account_key: ${{secrets.GCP_GITHUB_KEY}}
 
       - name : upload_file
         run  : |
-          gsutil cp next_deploy_date.txt $BUCKET_URI
+          gsutil cp $DS_FILE_NAME $BUCKET_URI
