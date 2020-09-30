@@ -1,0 +1,15 @@
+LOCAL_REPO_PATH   : "<path to local repo>"
+GOOGLE_PROJECT_ID : "<GCP Project ID or Number>"
+
+BUCKET_NAME  : "<Cloud Storage bucket name to read from>"
+DS_FILE_NAME : "<Path and file name to read>"
+
+DEPLOYER :
+    NAME        : "<Which deployer to use - NONE, GITHUB, NETLIFY>"
+    WEBHOOK_URL : "<URL to post to activate the webhook>"
+    SECRET_NAME : "<Name of secret to query for the auth key for the deployer>"
+
+EMAIL : 
+    PROVIDER     : "<Which email service to use - NONE, SENDGRID>"
+    FROM_ADDRESS : "<Email address to message will seem to be from>"
+    TO_ADDRESS   : "<Email address to send the mail to>"
