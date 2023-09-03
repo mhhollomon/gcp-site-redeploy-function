@@ -1,5 +1,5 @@
-import * as req_prom from 'request-promise-native';
-import {get_token} from './auth_token';
+import got from 'got';
+import {get_token} from './auth_token.js';
 
 
 export class SecretManager {
@@ -8,19 +8,17 @@ export class SecretManager {
     }
 
     async get_secret_data(secret_name) {
-        const secret_uri = `https://secretmanager.googleapis.com/v1beta1/projects/${this.project_id_}/secrets/${secret_name}/versions/latest:access`;
-        const token = await tok.get_token();
+        const secret_uri = `https://secretmanager.googleapis.com/v1/projects/${this.project_id_}/secrets/${secret_name}/versions/latest:access`;
+        const token = await get_token();
         
-        return req_prom.get(secret_uri, {
+        const data = await got(secret_uri, {
             headers : {
                 'Authorization': `Bearer ${token}`,
                 'X-Goog-User-Project' : this.project_id_
-            },
-            json: true
-        })
-        .then ((data) => { 
-            return Promise.resolve(Buffer.from(data.payload.data, 'base64').toString());
-        });
+            }
+        }).json();
+        
+        return Buffer.from(data.payload.data, 'base64').toString();
     }
 
 }

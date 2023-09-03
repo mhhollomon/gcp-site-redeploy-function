@@ -1,5 +1,5 @@
-import * as req_prom from 'request-promise-native';
 import {Mutex} from 'async-mutex';
+import got from 'got';
 
 const token_req_uri = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token";
 
@@ -23,7 +23,7 @@ export async function get_token() {
         release();
     }
 
-    return req_prom.get(token_req_uri,
+    return got.get(token_req_uri,
         {
             "headers" : {
                 "Metadata-Flavor": "Google"

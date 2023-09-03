@@ -1,11 +1,11 @@
-const req_prom  = require('request-promise-native');
+import got from 'got';
 
 //
 // Config must have two keys:
 //      WEBHOOK_URL - the URL to Post to
 //      AUTH_KEY    - token to use for authorization
 //
-exports.request_deploy = (config) => {
+export function request_deploy(config) {
     console.log("GitHub Deployer called");
 
     var options = {
@@ -21,5 +21,5 @@ exports.request_deploy = (config) => {
             event_type: "request_redeploy"
         }
     };
-    return new req_prom(options);
+    return new got(options);
 }
