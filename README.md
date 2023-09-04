@@ -228,3 +228,32 @@ Commit and push the workflows to your repository.
 ### Step 9. Enjoy
 
 Write some nice new content.
+
+### info
+
+```bash
+gcloud iam service-accounts create redeploy-service-account \
+    --description="service account for redeploying" \
+    --display-name="redeploy-service-account"
+
+sleep 60 # takes time to propagate
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+    --member="serviceAccount:redeploy-service-account@${PROJECT_ID}.iam.gserviceaccount.com" \
+    --role="roles/secretmanager.secretAccessor"
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+    --member="serviceAccount:redeploy-service-account@${PROJECT_ID}.iam.gserviceaccount.com" \
+    --role="roles/cloudfunctions.serviceAgent"
+
+
+gcloud iam service-accounts add-iam-policy-binding \
+    redeploy-service-account@${PROJECT_ID}.iam.gserviceaccount.com \
+    --member="user:${GCP_USER_EMAIL}" \
+    --role="roles/iam.serviceAccountUser"
+
+gcloud iam service-accounts add-iam-policy-binding \
+    redeploy-service-account@${PROJECT_ID}.iam.gserviceaccount.com \
+    --member="user:${GCP_USER_EMAIL}" \
+    --role="roles/iam.serviceAccountTokenCreator"
+```

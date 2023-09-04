@@ -1,6 +1,6 @@
-const req_prom  = require('request-promise-native');
+import got from 'got';
 
-exports.request_deploy = (config) => {
+export function request_deploy(config) {
     console.log("Netlify Deployer called");
     var options = {
         method : 'POST',
@@ -9,5 +9,5 @@ exports.request_deploy = (config) => {
         body   : {}
     };
 
-    return new req_prom(options);
+    return new got(options);
 }

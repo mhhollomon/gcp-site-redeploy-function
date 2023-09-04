@@ -1,8 +1,9 @@
 {
   "name": "redeploy",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "function to deploy",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "start": "npx @google-cloud/functions-framework --target=redeploy --signature-type=event",
     "watch": "npm-watch start",
@@ -18,16 +19,16 @@
   "author": "github/mhhollomon",
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/functions-framework": "^1.7.1",
-    "@google-cloud/storage": "^4.7.0",
-    "@sendgrid/mail": "^6.5.5",
+    "@google-cloud/functions-framework": "^3.0.0",
+    "@google-cloud/secret-manager": "^5.0.0",
+    "@google-cloud/storage": "^7.0.0",
+    "@sendgrid/mail": "^7.7.0",
     "async-mutex": "^0.1.4",
     "esm": "^3.2.25",
-    "request": "^2.88.2",
-    "request-promise-native": "^1.0.9"
+    "got": "^13.0.0"
   },
   "devDependencies": {
     "js-yaml": "^3.14.0",
-    "npm-watch": "^0.6.0"
+    "npm-watch": "^0.11.0"
   }
 }

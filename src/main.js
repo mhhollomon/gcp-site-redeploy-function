@@ -1,10 +1,14 @@
-import * as req_prom from 'request-promise-native';
-import * as deployer from './lib/deployer';
+// used in the lib so we need to declare it here.
+import got from 'got';
+
+import * as deployer from './lib/deployer.js';
 import {Storage} from '@google-cloud/storage';
 import {SecretManager} from './lib/gcp_secret_manager.js';
 
 
-const config    = require('./redeploy.json');
+import fs from 'fs';
+
+const config = JSON.parse(fs.readFileSync('./redeploy.json'));
 
 //
 // request_deploy
@@ -14,7 +18,7 @@ function request_deploy(deployer_config) {
 }
 
 function use_sendgrid(econfig, status) {
-    const SendGrid  = require('@sendgrid/mail');
+    const SendGrid = import('@sendgrid/mail');
     const api_key = econfig.AUTH_KEY;
     const date_string = new Date().toLocaleString();
     const msg = {
@@ -87,7 +91,7 @@ function get_redeploy_date() {
 
 }
 
-exports.redeploy = async (data, context) => {
+export async function redeploy (data, context) {
     var webhook_status = 'Unkown';
 
     const redeploy_date = await get_redeploy_date();
@@ -122,7 +126,7 @@ exports.redeploy = async (data, context) => {
     }
 
     console.log(`webhook finished - ${webhook_status}`);
-    email_config = config.EMAIL;
+    const email_config = config.EMAIL;
 
     if ("SECRET_NAME" in email_config) {
         email_config.AUTH_KEY = await secret_manager.get_secret_data(email_config.SECRET_NAME);
@@ -136,4 +140,4 @@ exports.redeploy = async (data, context) => {
 //
 // Used only to test the deployment scripts
 //
-exports.redeploy_test = async (data, context) => { await exports.redeploy(data, context); };
+export async function redeploy_test(data, context) { await redeploy(data, context); };

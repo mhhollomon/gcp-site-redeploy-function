@@ -1,6 +1,4 @@
-import * as req_prom from 'request-promise-native';
-import {get_token} from './auth_token';
-
+import {SecretManagerServiceClient} from '@google-cloud/secret-manager';
 
 export class SecretManager {
     constructor(project_id) {
@@ -8,19 +6,14 @@ export class SecretManager {
     }
 
     async get_secret_data(secret_name) {
-        const secret_uri = `https://secretmanager.googleapis.com/v1beta1/projects/${this.project_id_}/secrets/${secret_name}/versions/latest:access`;
-        const token = await tok.get_token();
-        
-        return req_prom.get(secret_uri, {
-            headers : {
-                'Authorization': `Bearer ${token}`,
-                'X-Goog-User-Project' : this.project_id_
-            },
-            json: true
-        })
-        .then ((data) => { 
-            return Promise.resolve(Buffer.from(data.payload.data, 'base64').toString());
-        });
+        const fullname = 'projects/' + this.project_id_ + '/secrets/' + secret_name + '/versions/latest'
+        console.log("Getting secret " + secret_name)
+        const client = new SecretManagerServiceClient();
+        const [accessResponse] = await client.accessSecretVersion({
+            name: fullname
+          });
+
+        return  accessResponse.payload.data.toString('utf8');
     }
 
 }

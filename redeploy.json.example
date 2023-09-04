@@ -16,6 +16,7 @@
     "PROVIDER"     : "<Which email service to use - NONE, SENDGRID>",
     "FROM_ADDRESS" : "<Email address to message will seem to be from>",
     "TO_ADDRESS"   : "<Email address to send the mail to>",
+    "SECRET_NAME" : "<Name of secret to query for the auth key for the emailer>"
 }
 
 }
