@@ -1,36 +1,34 @@
 name: build deploy firebase
 
 on:
-    repository_dispatch :
-        branches: 
-            - master
+  repository_dispatch :
+    types : [ "request_redeploy" ]
 
-    push:
-        branches: 
-            - master
-
-
+  push:
+    branches:
+      - master
+      - main
 jobs:
-  build:
-    name: Build and Deploy
+  build_and_deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: checkout
-        uses: actions/checkout@master
-        
+        uses: actions/checkout@v3
+
       - name: setup hugo
-        uses: peaceiris/actions-hugo@v2.4.1
+        uses: peaceiris/actions-hugo@v2
         with:
           hugo-version: 'latest'
           extended: true
 
       - name: build
-        run: hugo --minify
+        run : |
+            env
+            npm install && npm run build:dist
 
-      - name: deploy-to-firebase
-        uses: w9jds/firebase-action@master
+      - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          args: deploy --only hosting
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: '${{ env.PROJECT_ID }}'

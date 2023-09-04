@@ -126,7 +126,7 @@ export async function redeploy (data, context) {
     }
 
     console.log(`webhook finished - ${webhook_status}`);
-    email_config = config.EMAIL;
+    const email_config = config.EMAIL;
 
     if ("SECRET_NAME" in email_config) {
         email_config.AUTH_KEY = await secret_manager.get_secret_data(email_config.SECRET_NAME);

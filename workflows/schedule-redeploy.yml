@@ -2,12 +2,13 @@ name: schedule redeploy
 
 on:
     repository_dispatch :
-        branches: 
-            - master
+        types : [ "request_redeploy" ]
 
     push:
         branches: 
             - master
+            - main
+
 
 env :
     BUCKET_URI: "%{BUCKET_URI}%"
@@ -22,24 +23,25 @@ jobs:
         uses: actions/checkout@master
 
       - name: setup hugo
-        uses: peaceiris/actions-hugo@v2.4.1
+        uses: peaceiris/actions-hugo@v2
         with:
           hugo-version: 'latest'
           extended: true
 
       - name : generate_file
         run  : |
-          hugo list future head -1 > $DS_FILE_NAME
+          hugo list future | cut -d',' -f6 | sort | grep -v publishDate | head -1 > $DS_FILE_NAME
           echo "schedule file contains:"
           cat $DS_FILE_NAME
           echo "END"
 
+     - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
       - name : setup-gcloud
-        uses : GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with :
-          version : '276.0.0'
-          service_account_email: ${{secrets.GCP_GITHUB_FID}}
-          service_account_key: ${{secrets.GCP_GITHUB_KEY}}
+        uses : google-github-actions/setup-gcloud@v1
 
       - name : upload_file
         run  : |

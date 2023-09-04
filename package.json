@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "function to deploy",
   "main": "src/index.js",
-  "type" : "module",
+  "type": "module",
   "scripts": {
     "start": "npx @google-cloud/functions-framework --target=redeploy --signature-type=event",
     "watch": "npm-watch start",
@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@google-cloud/functions-framework": "^3.0.0",
+    "@google-cloud/secret-manager": "^5.0.0",
     "@google-cloud/storage": "^7.0.0",
     "@sendgrid/mail": "^7.7.0",
     "async-mutex": "^0.1.4",

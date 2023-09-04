@@ -15,6 +15,7 @@ if [ "$1" = "function" ]; then
 
     gcloud functions deploy ${func_name} \
         --source src \
+        --service-account="redeploy-service-account@${PROJECT_ID}.iam.gserviceaccount.com" \
         --docker-registry=artifact-registry \
         --runtime nodejs18 \
         --trigger-topic ${pubsub_topic} \
