@@ -1,10 +1,6 @@
-// used in the lib so we need to declare it here.
-import got from 'got';
-
 import * as deployer from './lib/deployer.js';
 import {Storage} from '@google-cloud/storage';
 import {SecretManager} from './lib/gcp_secret_manager.js';
-
 
 import fs from 'fs';
 
@@ -17,8 +13,7 @@ function request_deploy(deployer_config) {
     return new deployer(deployer_config).request_deploy();
 }
 
-function use_sendgrid(econfig, status) {
-    const SendGrid = import('@sendgrid/mail');
+async function use_sendgrid(econfig, status) {
     const api_key = econfig.AUTH_KEY;
     const date_string = new Date().toLocaleString();
     const msg = {
@@ -28,14 +23,21 @@ function use_sendgrid(econfig, status) {
         "text" : `Finished at ${date_string}. Other information will be in the function logs.`
     };
 
-    SendGrid.setApiKey(api_key);
-    return SendGrid.send(msg)
+    const { default : sgMail } = await import('@sendgrid/mail')
+
+    
+
+    sgMail.setApiKey(api_key);
+    return sgMail.send(msg)
         .then(() => {
             return Promise.resolve(`Mail sent to ${econfig.TO_ADDRESS}.`);
         })
         .catch( (error) => {
             console.log(`Sending mail failed: ${error}`)
         });
+    
+   
+
 }
 
 //
